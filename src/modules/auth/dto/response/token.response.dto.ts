@@ -1,4 +1,4 @@
-import { AssignableObject } from '../../../utils/object-operations/assignable-object';
+import { AssignableObject } from '../../../../utils/object-operations/assignable-object';
 
 export class TokenResponse extends AssignableObject {
   constructor(data: Partial<TokenResponse>) {

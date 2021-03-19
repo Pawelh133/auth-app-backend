@@ -4,7 +4,6 @@ export class RegisterUserRequestDto {
   @IsNotEmpty()
   @IsString()
   readonly email: string;
-
   
   @IsNotEmpty()
   @IsString()

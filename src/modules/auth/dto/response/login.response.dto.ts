@@ -1,4 +1,4 @@
-import { AssignableObject } from '../../../utils/object-operations/assignable-object';
+import { AssignableObject } from '../../../../utils/object-operations/assignable-object';
 
 class UserResult {
   id: string;

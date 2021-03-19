@@ -1,0 +1,15 @@
+version: "3"
+services:
+  db:
+    image:  postgres
+    restart: always 
+    ports:
+      - "5444:5432"
+    environment:
+       POSTGRES_PASSWORD: password
+
+# // Start containers in detached / background mode
+# docker-compose up -d
+
+# // Stop containers
+# docker-compose down
