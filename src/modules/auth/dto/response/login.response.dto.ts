@@ -10,8 +10,7 @@ export class LoginResponse extends AssignableObject {
     public accessToken: string,
     public refreshToken: string,
     public accessTokenExpiresIn: number,
-    userId: string,
-    accountType: string) {
+    userId: string) {
     super();
 
     this.assignIfExists(accessToken, 'accessToken');
@@ -20,7 +19,6 @@ export class LoginResponse extends AssignableObject {
 
     this.userResult = new UserResult();
     this.userResult.id = userId;
-    this.userResult.accountType = accountType;
   }
 
   userResult: UserResult;
