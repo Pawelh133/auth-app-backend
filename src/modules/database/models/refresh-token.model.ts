@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, JoinColumn, ManyToOne } from 'typeorm';
 
 import { DateTimeConverter } from '../../../utils/helpers/datetime-converter.helper';
 import { User } from '../entities/user.entity';

@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 import { UserModel } from '../models/user.model';
 import { RegisterUserRequestDto } from '../../auth/dto/request/register-user.request.dto';
-import { ProfileRequestDto } from 'src/modules/profile/dto/request/profile-request.dto';
+import { ProfileRequestDto } from '../../../modules/profile/dto/request/profile-request.dto';
 
 @Entity({ name: 'users' })
 export class User extends UserModel {

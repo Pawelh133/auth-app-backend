@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { User } from '../database/entities/user.entity';
-import { TokenByRefreshRequestDto } from './dto/request/token-by-refresh.request.dto';
 import { RefreshToken } from '../database/entities/refresh-token.entity';
 
 @Injectable()

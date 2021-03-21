@@ -1,10 +1,10 @@
-import { Controller, HttpCode, Get, HttpStatus, Body, Patch, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, HttpCode, Get, HttpStatus, Body, Patch, UseGuards, Req } from '@nestjs/common';
 
 import { ProfileService } from './profile.service';
 import { ProfileRequestDto } from './dto/request/profile-request.dto';
 import { ProfileResponseDto } from './dto/response/profile-response.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { IUserRequestId } from 'src/utils/interface/userRequestId';
+import { IUserRequestId } from '../../utils/interface/userRequestId';
 
 @Controller('profile')
 export class ProfileController {
