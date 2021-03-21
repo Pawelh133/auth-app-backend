@@ -14,6 +14,7 @@ import { IJwtPayload } from './jwt-payload.interface';
 import { DateTimeConverter } from '../../utils/helpers/datetime-converter.helper';
 import { RefreshToken } from '../database/entities/refresh-token.entity';
 import { AuthRepository } from './auth.repository';
+import { ConfigData } from './auth.config';
 
 @Injectable()
 export class AuthService {
@@ -23,49 +24,40 @@ export class AuthService {
   ) { }
 
   async register(registerUserDto: RegisterUserRequestDto): Promise<void> {
-    try {
-      const user = await this.authRepository.getUserByEmail(registerUserDto.email);
+    const user = await this.authRepository.getUserByEmail(registerUserDto.email);
 
-      if (user) {
-        throw new BadRequestException('Użytkownik z takim adresem email juz istnieje.');
-      }
-
-      const newUser = await (new User().create(registerUserDto));
-
-      await this.authRepository.saveUser(newUser);
-    } catch (e) {
-      throw new InternalServerErrorException('Wystapił bład podczas rejestracji. Prosimy spróbuować ponownie.');
+    if (user) {
+      throw new BadRequestException('Użytkownik z takim adresem email juz istnieje.');
     }
+
+    const newUser = await (new User().create(registerUserDto));
+
+    await this.authRepository.saveUser(newUser);
   }
 
   async login(tokenByLoginReqestDto: TokenByLoginReqestDto): Promise<LoginResponse> {
-    try {
-      const user = await this.authRepository.getUserByEmail(tokenByLoginReqestDto.email);
-      const passwordCorrect = await this.compareHashToPassword(tokenByLoginReqestDto.password, user.password);
+    const user = await this.authRepository.getUserByEmail(tokenByLoginReqestDto.email);
+    const passwordCorrect = await this.compareHashToPassword(tokenByLoginReqestDto.password, user.password);
 
-      if (!passwordCorrect) {
-        throw new BadRequestException('Błędny adres email, lub niepoprawne hasło.');
-      }
-
-      const refreshToken = this.generateRefreshToken();
-      const accessTokenExpiresIn = Number(66666);
-      const accessToken = this.generateAccessToken(user);
-
-      if (!isEmpty(user.refreshTokens)) {
-        await this.updateCurrentRefreshToken(user, refreshToken);
-      } else {
-        const refreshTokenModel = new RefreshToken().create(refreshToken);
-        await this.assignNewRefreshToken(user, refreshTokenModel);
-      }
-
-      return new LoginResponse(
-        accessToken,
-        refreshToken,
-        accessTokenExpiresIn,
-        user.id);
-    } catch (e) {
-      throw new InternalServerErrorException('Wystapił bład podczas rejestracji. Prosimy spróbuować ponownie.');
+    if (!passwordCorrect) {
+      throw new BadRequestException('Błędny adres email, lub niepoprawne hasło.');
     }
+
+    const refreshToken = this.generateRefreshToken();
+    const accessTokenExpiresIn = ConfigData.accesTokenExpiresIn;
+    const accessToken = this.generateAccessToken(user);
+
+    if (!isEmpty(user.refreshTokens)) {
+      await this.updateCurrentRefreshToken(user, refreshToken);
+    } else {
+      const refreshTokenModel = new RefreshToken().create(refreshToken);
+      await this.assignNewRefreshToken(user, refreshTokenModel);
+    }
+
+    return new LoginResponse(
+      accessToken,
+      refreshToken,
+      accessTokenExpiresIn);
   }
 
   private async updateCurrentRefreshToken(user: User, refreshToken: string): Promise<void> {
@@ -84,28 +76,24 @@ export class AuthService {
   }
 
   async token(registerUserDto: TokenByRefreshRequestDto): Promise<TokenResponse> {
-    try {
-      const refreshTokenModel = await this.authRepository.getRefreshToken(registerUserDto.refreshToken);
+    const refreshTokenModel = await this.authRepository.getRefreshToken(registerUserDto.refreshToken);
 
-      if (!refreshTokenModel || !this.isTokenActual(refreshTokenModel.createdAt)) {
-        throw new BadRequestException('Token jest nieaktualny lub nie istnieje.');
-      }
-
-      const accessToken = this.generateAccessToken(refreshTokenModel.user);
-      const newRefreshToken = this.generateRefreshToken();
-
-      refreshTokenModel.create(newRefreshToken);
-
-      await this.authRepository.saveRefreshToken(refreshTokenModel);
-
-      return new TokenResponse({
-        accessToken,
-        accessTokenExpiresIn: Number(6666666666),
-        refreshToken: newRefreshToken,
-      });
-    } catch (e) {
-      throw new InternalServerErrorException('Wystapił bład podczas generowania tokena. Prosimy spróbuować ponownie.');
+    if (!refreshTokenModel || !this.isTokenActual(refreshTokenModel.createdAt)) {
+      throw new BadRequestException('Token jest nieaktualny lub nie istnieje.');
     }
+
+    const accessToken = this.generateAccessToken(refreshTokenModel.user);
+    const newRefreshToken = this.generateRefreshToken();
+
+    refreshTokenModel.create(newRefreshToken);
+
+    await this.authRepository.saveRefreshToken(refreshTokenModel);
+
+    return new TokenResponse({
+      accessToken,
+      accessTokenExpiresIn: ConfigData.accesTokenExpiresIn,
+      refreshToken: newRefreshToken,
+    });
   }
 
   async validateUser(payload: IJwtPayload): Promise<User> {
@@ -130,7 +118,7 @@ export class AuthService {
   }
 
   private isTokenActual(tokenCreatedOn: number): boolean {
-    const tokenExpiration = tokenCreatedOn + Number(66666665555);
+    const tokenExpiration = tokenCreatedOn + ConfigData.accesTokenExpiresIn;;
 
     return tokenExpiration > DateTimeConverter.timestampNow();
   }

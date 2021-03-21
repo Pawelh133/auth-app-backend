@@ -27,7 +27,7 @@ export class AuthRepository {
         'refreshToken',
         'user.email',
         'user.id'])
-      .where('email = :email', { email, })
+      .where('email = :email', { email })
       .leftJoin('user.refreshTokens', 'refreshToken')
       .getOne();
   }

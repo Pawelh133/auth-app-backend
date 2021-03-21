@@ -8,8 +8,4 @@ export class RegisterUserRequestDto {
   @IsNotEmpty()
   @IsString()
   readonly password: string;
-
-  @IsOptional()
-  @IsString()
-  readonly name?: string;
 }

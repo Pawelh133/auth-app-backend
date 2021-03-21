@@ -1,20 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
-import { User } from '../database/entities/user.entity';
 import { ProfileRequestDto } from './dto/request/profile-request.dto';
 import { ProfileResponseDto } from './dto/response/profile-response.dto';
+import { ProfileRepository } from './profile.repository';
 
 @Injectable()
 export class ProfileService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly profileRepository: ProfileRepository,
   ) { }
 
   async get(id: string): Promise<ProfileResponseDto> {
-    const result = await this.userRepository.findOne(id);
+    const result = await this.profileRepository.getOne(id);
 
     if (!result) {
       throw new NotFoundException('User not found');
@@ -24,13 +21,15 @@ export class ProfileService {
   }
 
   async update(id: string, registerUserRequestDto: ProfileRequestDto): Promise<ProfileResponseDto> {
-    const user = await this.userRepository.preload({ id: id, ...registerUserRequestDto });
+    let userToUpdate = await this.profileRepository.getOne(id);
 
-    if (!user) {
+    if (!userToUpdate) {
       throw new NotFoundException('User not found');
     }
 
-    const result = await this.userRepository.save(user);
+    userToUpdate.update(registerUserRequestDto)
+
+    const result = await this.profileRepository.save(userToUpdate);
 
     return new ProfileResponseDto(result);
   }

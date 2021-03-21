@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthRepository } from './auth.repository';
+import { ConfigData } from './auth.config';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { AuthRepository } from './auth.repository';
     JwtModule.register({
       secret: 'secret',
       signOptions: {
-        expiresIn: 666666,
+        expiresIn: ConfigData.accesTokenExpiresIn,
       },
     }),
   ],
