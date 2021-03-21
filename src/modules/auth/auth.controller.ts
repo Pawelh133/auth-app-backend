@@ -6,6 +6,7 @@ import { TokenByRefreshRequestDto } from './dto/request/token-by-refresh.request
 import { LoginResponse } from './dto/response/login.response.dto';
 import { TokenResponse } from './dto/response/token.response.dto';
 import { AuthService } from './auth.service';
+import { LogoutRequestDto } from './dto/request/logout.request.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() body: TokenByLoginReqestDto): Promise<LoginResponse> {
     return await this.authService.login(body);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Body() body: LogoutRequestDto): Promise<void> {
+    return await this.authService.logout(body);
   }
 
   @Post('token')

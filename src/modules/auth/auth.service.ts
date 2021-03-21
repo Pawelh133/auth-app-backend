@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
@@ -15,6 +15,7 @@ import { DateTimeConverter } from '../../utils/helpers/datetime-converter.helper
 import { RefreshToken } from '../database/entities/refresh-token.entity';
 import { AuthRepository } from './auth.repository';
 import { ConfigData } from './auth.config';
+import { LogoutRequestDto } from './dto/request/logout.request.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,6 +38,11 @@ export class AuthService {
 
   async login(tokenByLoginReqestDto: TokenByLoginReqestDto): Promise<LoginResponse> {
     const user = await this.authRepository.getUserByEmail(tokenByLoginReqestDto.email);
+
+    if (!user) {
+      throw new BadRequestException('Błędny adres email, lub niepoprawne hasło.');
+    }
+
     const passwordCorrect = await this.compareHashToPassword(tokenByLoginReqestDto.password, user.password);
 
     if (!passwordCorrect) {
@@ -58,6 +64,10 @@ export class AuthService {
       accessToken,
       refreshToken,
       accessTokenExpiresIn);
+  }
+
+  async logout(logoutRequestDto: LogoutRequestDto): Promise<void> {
+    await this.authRepository.deleteRefreshToken(logoutRequestDto.refreshToken);
   }
 
   private async updateCurrentRefreshToken(user: User, refreshToken: string): Promise<void> {
@@ -118,7 +128,7 @@ export class AuthService {
   }
 
   private isTokenActual(tokenCreatedOn: number): boolean {
-    const tokenExpiration = tokenCreatedOn + ConfigData.accesTokenExpiresIn;;
+    const tokenExpiration = tokenCreatedOn + ConfigData.refreshTokenExpiresIn;;
 
     return tokenExpiration > DateTimeConverter.timestampNow();
   }

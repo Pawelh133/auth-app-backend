@@ -53,6 +53,10 @@ export class AuthRepository {
     await this.refreshTokenRepository.update(updatedTokenId, updatedToken);
   }
 
+  async deleteRefreshToken(refreshToken: string): Promise<void> {
+    await this.refreshTokenRepository.delete({ refreshToken });
+  }
+
   async saveRefreshToken(refreshToken: RefreshToken): Promise<void> {
     await this.refreshTokenRepository.save(refreshToken);
   }
